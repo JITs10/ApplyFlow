@@ -20,7 +20,8 @@
 # production
 /build
 
-# misc
+# learning notes
+/.vibe-wise/
 .DS_Store
 *.pem
 
