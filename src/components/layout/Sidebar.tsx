@@ -4,21 +4,25 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import {
-  LayoutDashboard, Briefcase, Columns, Calendar,
-  Bell, FileText, Settings, LogOut,
+  LayoutDashboard,
+  Briefcase,
+  Calendar,
+  Bell,
+  FileText,
+  Settings,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 
 const nav = [
-  { href: '/dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
-  { href: '/applications',  label: 'Applications',  icon: Briefcase },
-  { href: '/kanban',        label: 'Kanban',         icon: Columns },
-  { href: '/calendar',      label: 'Calendar',       icon: Calendar },
-  { href: '/follow-ups',    label: 'Follow-ups',     icon: Bell },
-  { href: '/resumes',       label: 'Resume Library', icon: FileText },
-  { href: '/settings',      label: 'Settings',       icon: Settings },
+  { href: '/dashboard',     label: 'Dashboard',      icon: LayoutDashboard },
+  { href: '/applications',  label: 'Applications',   icon: Briefcase },
+  { href: '/calendar',      label: 'Calendar',        icon: Calendar },
+  { href: '/follow-ups',    label: 'Follow-ups',      icon: Bell },
+  { href: '/resumes',       label: 'Resume Library',  icon: FileText },
+  { href: '/settings',      label: 'Settings',        icon: Settings },
 ]
 
 interface SidebarProps {
@@ -54,8 +58,8 @@ export function Sidebar({ user }: SidebarProps) {
         ))}
       </nav>
 
-      {/* User */}
-      <div className="border-t p-4 space-y-3">
+      {/* User profile footer */}
+      <div className="p-4 border-t flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           {user?.image && (
             <Image src={user.image} alt="" width={32} height={32} className="rounded-full shrink-0" />
@@ -67,12 +71,12 @@ export function Sidebar({ user }: SidebarProps) {
         </div>
         <Button
           variant="ghost"
-          size="sm"
-          className="w-full justify-start gap-2 text-muted-foreground"
+          size="icon"
+          className="shrink-0"
           onClick={() => signOut({ callbackUrl: '/sign-in' })}
+          title="Sign out"
         >
           <LogOut className="h-4 w-4" />
-          Sign out
         </Button>
       </div>
     </aside>

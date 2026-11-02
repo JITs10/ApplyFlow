@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation'
+
 export default function KanbanPage() {
-  return <h1 className="text-2xl font-bold">Kanban</h1>
+  redirect('/applications')
 }

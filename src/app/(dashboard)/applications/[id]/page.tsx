@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusBadge } from '@/components/applications/StatusBadge'
 import { DeleteApplicationDialog } from '@/components/applications/DeleteApplicationDialog'
+import { ScheduleInterviewDialog } from '@/components/interviews/ScheduleInterviewDialog'
 import { formatDate, formatDateTime } from '@/lib/utils'
 import {
   ArrowLeft,
@@ -18,6 +19,7 @@ import {
   User,
   Mail,
   Clock,
+  Video,
 } from 'lucide-react'
 
 interface Props {
@@ -118,35 +120,61 @@ export default async function ApplicationDetailPage({ params }: Props) {
 
           {/* Interviews Section */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Scheduled Interviews</CardTitle>
-              <span className="text-xs text-muted-foreground">
-                {application.interviews.length} scheduled
-              </span>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <div>
+                <CardTitle className="text-base">Scheduled Rounds & Deadlines</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {application.interviews.length} {application.interviews.length === 1 ? 'round' : 'rounds'} logged
+                </p>
+              </div>
+
+              <ScheduleInterviewDialog
+                applications={[{ id: application.id, company: application.company, jobTitle: application.jobTitle }]}
+                defaultApplicationId={application.id}
+                triggerText="Add Round"
+                triggerVariant="outline"
+                triggerSize="sm"
+              />
             </CardHeader>
+
             <CardContent>
               {application.interviews.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No interviews scheduled yet.</p>
+                <p className="text-sm text-muted-foreground py-2">
+                  No interview rounds scheduled yet. Click &quot;Add Round&quot; above to add a screening, technical round, or assessment deadline.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {application.interviews.map((interview) => (
                     <div
                       key={interview.id}
-                      className="p-3 border rounded-lg flex items-center justify-between text-sm"
+                      className="p-3.5 border rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm bg-muted/30"
                     >
-                      <div>
-                        <p className="font-medium">{interview.title}</p>
-                        <p className="text-xs text-muted-foreground">
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-foreground">{interview.title}</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
                           {formatDateTime(interview.startAt)}
                         </p>
+                        {interview.location && (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 text-primary" />
+                            {interview.location}
+                          </p>
+                        )}
                       </div>
-                      {interview.meetingUrl && (
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={interview.meetingUrl} target="_blank" rel="noopener noreferrer">
-                            Join Link
-                          </a>
-                        </Button>
-                      )}
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {interview.meetingUrl && (
+                          <Button variant="default" size="sm" asChild className="gap-1.5 h-8">
+                            <a href={interview.meetingUrl} target="_blank" rel="noopener noreferrer">
+                              <Video className="h-3.5 w-3.5" />
+                              Join Meeting
+                            </a>
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

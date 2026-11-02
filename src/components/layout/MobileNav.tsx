@@ -5,20 +5,26 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import {
-  LayoutDashboard, Briefcase, Columns, Calendar,
-  Bell, FileText, Settings, LogOut, Menu, X,
+  LayoutDashboard,
+  Briefcase,
+  Calendar,
+  Bell,
+  FileText,
+  Settings,
+  LogOut,
+  Menu,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 const nav = [
-  { href: '/dashboard',    label: 'Dashboard',     icon: LayoutDashboard },
-  { href: '/applications', label: 'Applications',  icon: Briefcase },
-  { href: '/kanban',       label: 'Kanban',         icon: Columns },
-  { href: '/calendar',     label: 'Calendar',       icon: Calendar },
-  { href: '/follow-ups',   label: 'Follow-ups',     icon: Bell },
-  { href: '/resumes',      label: 'Resume Library', icon: FileText },
-  { href: '/settings',     label: 'Settings',       icon: Settings },
+  { href: '/dashboard',    label: 'Dashboard',      icon: LayoutDashboard },
+  { href: '/applications', label: 'Applications',   icon: Briefcase },
+  { href: '/calendar',     label: 'Calendar',        icon: Calendar },
+  { href: '/follow-ups',   label: 'Follow-ups',      icon: Bell },
+  { href: '/resumes',      label: 'Resume Library',  icon: FileText },
+  { href: '/settings',     label: 'Settings',        icon: Settings },
 ]
 
 interface MobileNavProps {
@@ -51,8 +57,8 @@ export function MobileNav({ user }: MobileNavProps) {
                 href={href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors',
-                  pathname === href || pathname.startsWith(href + '/')
+                  'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium',
+                  pathname === href
                     ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:bg-accent'
                 )}
@@ -62,16 +68,17 @@ export function MobileNav({ user }: MobileNavProps) {
               </Link>
             ))}
           </nav>
-          <div className="border-t p-4">
-            <p className="text-sm font-medium">{user?.name}</p>
-            <p className="text-xs text-muted-foreground mb-3">{user?.email}</p>
+          <div className="p-4 border-t flex items-center justify-between">
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate">{user?.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            </div>
             <Button
               variant="ghost"
-              size="sm"
-              className="gap-2 text-muted-foreground"
+              size="icon"
               onClick={() => signOut({ callbackUrl: '/sign-in' })}
             >
-              <LogOut className="h-4 w-4" /> Sign out
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
