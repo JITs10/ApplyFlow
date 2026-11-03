@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusBadge } from '@/components/applications/StatusBadge'
 import { DeleteApplicationDialog } from '@/components/applications/DeleteApplicationDialog'
 import { ScheduleInterviewDialog } from '@/components/interviews/ScheduleInterviewDialog'
+import { ScheduleFollowUpDialog } from '@/components/follow-ups/ScheduleFollowUpDialog'
 import { formatDate, formatDateTime } from '@/lib/utils'
 import {
   ArrowLeft,
@@ -20,6 +21,8 @@ import {
   Mail,
   Clock,
   Video,
+  Bell,
+  CheckCircle2,
 } from 'lucide-react'
 
 interface Props {
@@ -42,6 +45,8 @@ export default async function ApplicationDetailPage({ params }: Props) {
   if (!application) {
     notFound()
   }
+
+  const appOption = [{ id: application.id, company: application.company, jobTitle: application.jobTitle }]
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -129,7 +134,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
               </div>
 
               <ScheduleInterviewDialog
-                applications={[{ id: application.id, company: application.company, jobTitle: application.jobTitle }]}
+                applications={appOption}
                 defaultApplicationId={application.id}
                 triggerText="Add Round"
                 triggerVariant="outline"
@@ -173,6 +178,64 @@ export default async function ApplicationDetailPage({ params }: Props) {
                               Join Meeting
                             </a>
                           </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Follow-Ups Section */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <div>
+                <CardTitle className="text-base">Follow-Up Reminders</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {application.followUps.length} {application.followUps.length === 1 ? 'reminder' : 'reminders'} logged
+                </p>
+              </div>
+
+              <ScheduleFollowUpDialog
+                applications={appOption}
+                defaultApplicationId={application.id}
+                triggerText="Add Reminder"
+                triggerVariant="outline"
+                triggerSize="sm"
+              />
+            </CardHeader>
+
+            <CardContent>
+              {application.followUps.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">
+                  No follow-ups scheduled. Click &quot;Add Reminder&quot; above to set a check-in reminder with the recruiter.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {application.followUps.map((fu) => (
+                    <div
+                      key={fu.id}
+                      className="p-3 border rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm bg-muted/20"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">
+                            Due: {formatDate(fu.dueAt)}
+                          </span>
+                          {fu.status === 'COMPLETED' ? (
+                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-medium flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Done
+                            </span>
+                          ) : (
+                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+                        {fu.notes && (
+                          <p className="text-xs text-muted-foreground">{fu.notes}</p>
                         )}
                       </div>
                     </div>
