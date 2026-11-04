@@ -18,12 +18,19 @@ export default async function EditApplicationPage({ params }: Props) {
   const { id } = await params
   const user = await requireUser()
 
-  const application = await db.application.findFirst({
-    where: { id, userId: user.id },
-    include: {
-      interviews: { orderBy: { createdAt: 'desc' } },
-    },
-  })
+  const [application, resumes] = await Promise.all([
+    db.application.findFirst({
+      where: { id, userId: user.id },
+      include: {
+        interviews: { orderBy: { createdAt: 'desc' } },
+      },
+    }),
+    db.resume.findMany({
+      where: { userId: user.id },
+      select: { id: true, fileName: true },
+      orderBy: { createdAt: 'desc' },
+    }),
+  ])
 
   if (!application) {
     notFound()
@@ -58,5 +65,5 @@ export default async function EditApplicationPage({ params }: Props) {
     assessmentDate: formatDateTimeLocal(assessmentEvent?.startAt),
   }
 
-  return <ApplicationForm initialData={initialData} isEditing />
+  return <ApplicationForm initialData={initialData} isEditing resumes={resumes} />
 }

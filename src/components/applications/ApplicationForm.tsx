@@ -20,14 +20,24 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Calendar } from 'lucide-react'
+import { ArrowLeft, Loader2, Calendar, FileText } from 'lucide-react'
+
+interface ResumeOption {
+  id: string
+  fileName: string
+}
 
 interface ApplicationFormProps {
   initialData?: ApplicationInput & { id?: string }
   isEditing?: boolean
+  resumes?: ResumeOption[]
 }
 
-export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps) {
+export function ApplicationForm({
+  initialData,
+  isEditing,
+  resumes = [],
+}: ApplicationFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -51,6 +61,7 @@ export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps
       currency: 'INR',
       applicationDate: new Date().toISOString().split('T')[0],
       status: 'WISHLIST',
+      resumeId: undefined,
       contactName: '',
       contactEmail: '',
       nextFollowUpAt: '',
@@ -63,10 +74,11 @@ export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps
   const currentStatus = watch('status')
   const currentWorkMode = watch('workMode')
   const currentCurrency = watch('currency')
+  const currentResumeId = watch('resumeId')
 
   async function onSubmit(data: ApplicationInput) {
     try {
-      setIsSubmitting(false)
+      setIsSubmitting(true)
 
       if (isEditing && initialData?.id) {
         await updateApplication(initialData.id, data)
@@ -88,7 +100,7 @@ export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 pb-2 border-b">
         <Button variant="ghost" size="icon" asChild>
           <Link href={isEditing && initialData?.id ? `/applications/${initialData.id}` : '/applications'}>
             <ArrowLeft className="h-4 w-4" />
@@ -99,9 +111,7 @@ export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps
             {isEditing ? 'Edit Application' : 'Add New Application'}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isEditing
-              ? 'Update the details for this job opportunity.'
-              : 'Record a new job opportunity or submitted application.'}
+            {isEditing ? 'Update the details for this application.' : 'Track a new opportunity in your pipeline.'}
           </p>
         </div>
       </div>
@@ -110,7 +120,7 @@ export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps
         {/* Core Info */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Role & Company</CardTitle>
+            <CardTitle className="text-base">Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -118,7 +128,7 @@ export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps
                 <Label htmlFor="company">Company Name *</Label>
                 <Input
                   id="company"
-                  placeholder="e.g. Google, Stripe"
+                  placeholder="e.g. Google, Stripe, Microsoft"
                   {...register('company')}
                 />
                 {errors.company && (
@@ -139,9 +149,71 @@ export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="jobUrl">Job Posting URL</Label>
+              <Input
+                id="jobUrl"
+                type="url"
+                placeholder="https://linkedin.com/jobs/view/..."
+                {...register('jobUrl')}
+              />
+              {errors.jobUrl && (
+                <p className="text-xs text-destructive">{errors.jobUrl.message}</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Attached Resume */}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                Attached Resume Version
+              </CardTitle>
+              <Button variant="ghost" size="sm" asChild className="text-xs h-7">
+                <Link href="/resumes" target="_blank">
+                  Manage Resumes &rarr;
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="resumeId">Select Tailored Resume</Label>
+              <Select
+                value={currentResumeId || 'NONE'}
+                onValueChange={(val) => setValue('resumeId', val === 'NONE' ? undefined : val)}
+              >
+                <SelectTrigger id="resumeId">
+                  <SelectValue placeholder="Choose a resume from your library..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NONE">None (No resume attached)</SelectItem>
+                  {resumes.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.fileName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Track which tailored resume version you submitted for this role.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Status & Stages */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Stage & Dates</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="status">Application Stage</Label>
+                <Label htmlFor="status">Current Status</Label>
                 <Select
                   value={currentStatus}
                   onValueChange={(val: any) => setValue('status', val)}
@@ -159,46 +231,27 @@ export function ApplicationForm({ initialData, isEditing }: ApplicationFormProps
                     <SelectItem value="WITHDRAWN">Withdrawn</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.status && (
-                  <p className="text-xs text-destructive">{errors.status.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="applicationDate">Application Date</Label>
+                <Label htmlFor="applicationDate">Date Applied</Label>
                 <Input
                   id="applicationDate"
                   type="date"
                   {...register('applicationDate')}
                 />
-                {errors.applicationDate && (
-                  <p className="text-xs text-destructive">{errors.applicationDate.message}</p>
-                )}
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="jobUrl">Job Posting Link</Label>
-              <Input
-                id="jobUrl"
-                type="url"
-                placeholder="https://company.com/careers/role"
-                {...register('jobUrl')}
-              />
-              {errors.jobUrl && (
-                <p className="text-xs text-destructive">{errors.jobUrl.message}</p>
-              )}
             </div>
           </CardContent>
         </Card>
 
         {/* Dynamic Scheduling Card for Interview */}
         {currentStatus === 'INTERVIEW' && (
-          <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/40 dark:bg-amber-950/20">
+          <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/40 dark:bg-blue-950/20">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <CardTitle className="text-base flex items-center gap-2 text-blue-700 dark:text-blue-400">
                 <Calendar className="h-4 w-4" />
-                Scheduled Interview
+                Scheduled Interview Details
               </CardTitle>
             </CardHeader>
             <CardContent>

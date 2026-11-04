@@ -14,7 +14,7 @@ import { StatusBadge } from '@/components/applications/StatusBadge'
 import { ApplicationFilters } from '@/components/applications/ApplicationFilters'
 import { PaginationControls } from '@/components/applications/PaginationControls'
 import { formatDate } from '@/lib/utils'
-import { Plus, Briefcase, ChevronRight, SearchX } from 'lucide-react'
+import { Plus, Briefcase, ChevronRight, SearchX, Download } from 'lucide-react'
 import type { ApplicationStatus, Prisma } from '@prisma/client'
 
 export const metadata = {
@@ -103,12 +103,23 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
           </p>
         </div>
 
-        <Button asChild className="gap-2">
-          <Link href="/applications/new">
-            <Plus className="h-4 w-4" />
-            Add Application
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          {totalUserApps > 0 && (
+            <Button variant="outline" asChild className="gap-2">
+              <a href="/api/applications/export" download>
+                <Download className="h-4 w-4" />
+                Export CSV
+              </a>
+            </Button>
+          )}
+
+          <Button asChild className="gap-2">
+            <Link href="/applications/new">
+              <Plus className="h-4 w-4" />
+              Add Application
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {totalUserApps === 0 ? (

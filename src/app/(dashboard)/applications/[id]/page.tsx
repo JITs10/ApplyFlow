@@ -23,6 +23,8 @@ import {
   Video,
   Bell,
   CheckCircle2,
+  FileText,
+  Download,
 } from 'lucide-react'
 
 interface Props {
@@ -246,8 +248,31 @@ export default async function ApplicationDetailPage({ params }: Props) {
           </Card>
         </div>
 
-        {/* Right Column (1 col) - Overview Metadata */}
+        {/* Right Column (1 col) - Overview Metadata & Attached Resume */}
         <div className="space-y-6">
+          {/* Attached Resume Card */}
+          {application.resume && (
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2 text-primary">
+                  <FileText className="h-4 w-4" />
+                  Attached Resume
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm font-medium truncate" title={application.resume.fileName}>
+                  {application.resume.fileName}
+                </p>
+                <Button variant="outline" size="sm" asChild className="w-full gap-2 text-xs">
+                  <a href={application.resume.storageKey} target="_blank" rel="noopener noreferrer">
+                    <Download className="h-3.5 w-3.5" />
+                    Download / View Resume
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Application Overview</CardTitle>
