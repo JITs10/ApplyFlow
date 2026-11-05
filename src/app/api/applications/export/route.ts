@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { generateApplicationsCsv } from '@/lib/export/csv'
 
 export async function GET() {
   const user = await requireUser()
@@ -14,50 +15,25 @@ export async function GET() {
     },
   })
 
-  const headers = [
-    'Company',
-    'Job Title',
-    'Status',
-    'Location',
-    'Work Mode',
-    'Min Salary',
-    'Max Salary',
-    'Currency',
-    'Application Date',
-    'Next Follow-up Date',
-    'Contact Name',
-    'Contact Email',
-    'Attached Resume',
-    'Job Posting URL',
-    'Notes',
-  ]
+  const exportData = applications.map((app) => ({
+    company: app.company,
+    jobTitle: app.jobTitle,
+    status: app.status,
+    location: app.location,
+    workMode: app.workMode,
+    salaryMin: app.salaryMin ? Number(app.salaryMin) : null,
+    salaryMax: app.salaryMax ? Number(app.salaryMax) : null,
+    currency: app.currency,
+    applicationDate: app.applicationDate,
+    nextFollowUpAt: app.nextFollowUpAt,
+    contactName: app.contactName,
+    contactEmail: app.contactEmail,
+    resumeFileName: app.resume?.fileName,
+    jobUrl: app.jobUrl,
+    generalNotes: app.generalNotes,
+  }))
 
-  const escapeCsv = (val: unknown): string => {
-    if (val === null || val === undefined) return '""'
-    const str = String(val).replace(/"/g, '""')
-    return `"${str}"`
-  }
-
-  const rows = applications.map((app) => [
-    escapeCsv(app.company),
-    escapeCsv(app.jobTitle),
-    escapeCsv(app.status),
-    escapeCsv(app.location || ''),
-    escapeCsv(app.workMode || ''),
-    escapeCsv(app.salaryMin ? Number(app.salaryMin) : ''),
-    escapeCsv(app.salaryMax ? Number(app.salaryMax) : ''),
-    escapeCsv(app.currency),
-    escapeCsv(app.applicationDate ? app.applicationDate.toISOString().split('T')[0] : ''),
-    escapeCsv(app.nextFollowUpAt ? app.nextFollowUpAt.toISOString().split('T')[0] : ''),
-    escapeCsv(app.contactName || ''),
-    escapeCsv(app.contactEmail || ''),
-    escapeCsv(app.resume?.fileName || ''),
-    escapeCsv(app.jobUrl || ''),
-    escapeCsv(app.generalNotes || ''),
-  ])
-
-  const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n')
-
+  const csvContent = generateApplicationsCsv(exportData)
   const dateStr = new Date().toISOString().split('T')[0]
 
   return new Response(csvContent, {

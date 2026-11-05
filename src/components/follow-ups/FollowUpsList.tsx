@@ -23,6 +23,7 @@ import {
   snoozeFollowUp,
   deleteFollowUp,
 } from '@/actions/follow-ups'
+import { calculateUrgency } from '@/lib/follow-ups/urgency'
 import {
   Check,
   Clock,
@@ -107,35 +108,34 @@ export function FollowUpsList({ followUps, applications }: FollowUpsListProps) {
   }
 
   const getUrgencyBadge = (dueAt: Date) => {
-    const diff = differenceInCalendarDays(dueAt, new Date())
+    const urgency = calculateUrgency(dueAt)
 
-    if (diff < 0) {
-      const days = Math.abs(diff)
+    if (urgency.tier === 'OVERDUE') {
       return {
-        label: `Overdue by ${days} ${days === 1 ? 'day' : 'days'}`,
+        label: urgency.label,
         className: 'bg-destructive/15 text-destructive border-destructive/20 font-semibold',
         icon: AlertTriangle,
       }
     }
 
-    if (diff === 0) {
+    if (urgency.tier === 'TODAY') {
       return {
-        label: 'Due Today',
+        label: urgency.label,
         className: 'bg-primary/15 text-primary border-primary/25 font-semibold',
         icon: Clock,
       }
     }
 
-    if (diff === 1) {
+    if (urgency.tier === 'TOMORROW') {
       return {
-        label: 'Due Tomorrow',
+        label: urgency.label,
         className: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/25',
         icon: Clock,
       }
     }
 
     return {
-      label: `Due in ${diff} days`,
+      label: urgency.label,
       className: 'bg-muted text-muted-foreground border-transparent',
       icon: Calendar,
     }

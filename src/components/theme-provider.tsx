@@ -3,12 +3,17 @@
 import * as React from 'react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 
-// React 19 logs a development warning for the inline script that next-themes
-// uses to prevent flash of unstyled theme. This filters that specific false-positive.
+// Filter known development false-positives in React 19:
+// 1. next-themes inline theme script
+// 2. Browser extension autofill attributes (e.g. fdprocessedid injected by password managers)
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   const originalError = console.error
   console.error = (...args: unknown[]) => {
-    if (typeof args[0] === 'string' && args[0].includes('Encountered a script tag')) {
+    const message = args.map((a) => (typeof a === 'string' ? a : '')).join(' ')
+    if (
+      message.includes('Encountered a script tag') ||
+      message.includes('fdprocessedid')
+    ) {
       return
     }
     originalError.apply(console, args)
