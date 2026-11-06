@@ -15,6 +15,13 @@ describe('CSV Export Utilities', () => {
     assert.strictEqual(escapeCsvField('Bengaluru, Karnataka'), '"Bengaluru, Karnataka"')
   })
 
+  it('neutralizes potential CSV formula injection triggers', () => {
+    assert.strictEqual(escapeCsvField('=SUM(1+1)'), '"\'=SUM(1+1)"')
+    assert.strictEqual(escapeCsvField('@cmd'), '"\'@cmd"')
+    assert.strictEqual(escapeCsvField('+12345'), '"\'+12345"')
+    assert.strictEqual(escapeCsvField('-100'), '"\'-100"')
+  })
+
   it('handles null and undefined gracefully', () => {
     assert.strictEqual(escapeCsvField(null), '""')
     assert.strictEqual(escapeCsvField(undefined), '""')

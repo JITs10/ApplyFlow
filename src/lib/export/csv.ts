@@ -1,7 +1,11 @@
 export function escapeCsvField(val: unknown): string {
   if (val === null || val === undefined) return '""'
-  const str = String(val).replace(/"/g, '""')
-  return `"${str}"`
+  let str = String(val)
+  // Neutralize CSV formula injection (CWE-1236) if text begins with formula triggers
+  if (typeof val === 'string' && /^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`
+  }
+  return `"${str.replace(/"/g, '""')}"`
 }
 
 export interface ApplicationExportItem {
