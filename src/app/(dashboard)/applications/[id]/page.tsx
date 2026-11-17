@@ -129,16 +129,16 @@ export default async function ApplicationDetailPage({ params }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div>
-                <CardTitle className="text-base">Scheduled Rounds & Deadlines</CardTitle>
+                <CardTitle className="text-base">Interviews & Deadlines</CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  {application.interviews.length} {application.interviews.length === 1 ? 'round' : 'rounds'} logged
+                  {application.interviews.length} {application.interviews.length === 1 ? 'interview' : 'interviews'} scheduled
                 </p>
               </div>
 
               <ScheduleInterviewDialog
                 applications={appOption}
                 defaultApplicationId={application.id}
-                triggerText="Add Round"
+                triggerText="Add Interview"
                 triggerVariant="outline"
                 triggerSize="sm"
               />
@@ -147,7 +147,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
             <CardContent>
               {application.interviews.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-2">
-                  No interview rounds scheduled yet. Click &quot;Add Round&quot; above to add a screening, technical round, or assessment deadline.
+                  No interviews scheduled yet. Click &quot;Add Interview&quot; above to schedule a screening, technical interview, or take-home deadline.
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -195,7 +195,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
               <div>
                 <CardTitle className="text-base">Follow-Up Reminders</CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  {application.followUps.length} {application.followUps.length === 1 ? 'reminder' : 'reminders'} logged
+                  {application.followUps.length} {application.followUps.length === 1 ? 'reminder' : 'reminders'} scheduled
                 </p>
               </div>
 
@@ -264,7 +264,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
                   {application.resume.fileName}
                 </p>
                 <Button variant="outline" size="sm" asChild className="w-full gap-2 text-xs">
-                  <a href={application.resume.storageKey} target="_blank" rel="noopener noreferrer">
+                  <a href={`/api/resumes/${application.resume.id}/file`} target="_blank" rel="noopener noreferrer">
                     <Download className="h-3.5 w-3.5" />
                     Download / View Resume
                   </a>

@@ -20,7 +20,9 @@ export default async function SettingsPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings & Preferences</h1>
+        <h1 className="text-3xl font-serif tracking-tight">
+          Settings & <span className="serif-accent text-emerald-700 dark:text-emerald-400">Preferences</span>
+        </h1>
         <p className="text-sm text-muted-foreground">
           Manage your account profile, storage usage, and data exports.
         </p>
@@ -63,10 +65,10 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Database className="h-4 w-4 text-primary" />
-            Workspace Storage & Stats
+            Application Stats
           </CardTitle>
           <CardDescription>
-            Live count of resources stored in your cloud workspace.
+            Overview of your saved applications, resumes, and interviews.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -106,7 +108,7 @@ export default async function SettingsPage() {
             Data Export & Backup
           </CardTitle>
           <CardDescription>
-            Export your entire job search history to an RFC 4180 compliant CSV spreadsheet.
+            Download your job applications, interview timelines, and notes as a spreadsheet.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

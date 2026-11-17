@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { applicationSchema, type ApplicationInput } from '@/lib/validation/application'
 import { createApplication, updateApplication } from '@/actions/applications'
+import { parseJobUrlAction } from '@/actions/parse-job-url'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,7 +21,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Calendar, FileText } from 'lucide-react'
+import { ArrowLeft, Loader2, Calendar, FileText, Sparkles } from 'lucide-react'
 
 interface ResumeOption {
   id: string
@@ -40,6 +41,8 @@ export function ApplicationForm({
 }: ApplicationFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isParsingUrl, setIsParsingUrl] = useState(false)
+  const [urlInput, setUrlInput] = useState('')
 
   const {
     register,
@@ -70,6 +73,27 @@ export function ApplicationForm({
       assessmentDate: '',
     },
   })
+
+  async function handleAutoFetchUrl() {
+    if (!urlInput.trim()) return
+    try {
+      setIsParsingUrl(true)
+      const res = await parseJobUrlAction(urlInput.trim())
+      if (res.success && res.data) {
+        if (res.data.company) setValue('company', res.data.company)
+        if (res.data.jobTitle) setValue('jobTitle', res.data.jobTitle)
+        if (res.data.description) setValue('description', res.data.description)
+        setValue('jobUrl', urlInput.trim())
+        toast.success('Autofilled job details from posting URL!')
+      } else {
+        toast.error(res.error || 'Could not auto-fetch from URL')
+      }
+    } catch {
+      toast.error('Failed to parse URL')
+    } finally {
+      setIsParsingUrl(false)
+    }
+  }
 
   const currentStatus = watch('status')
   const currentWorkMode = watch('workMode')
@@ -111,7 +135,7 @@ export function ApplicationForm({
             {isEditing ? 'Edit Application' : 'Add New Application'}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isEditing ? 'Update the details for this application.' : 'Track a new opportunity in your pipeline.'}
+            {isEditing ? 'Update the details for this application.' : 'Save a new job application to your tracker.'}
           </p>
         </div>
       </div>
@@ -123,6 +147,35 @@ export function ApplicationForm({
             <CardTitle className="text-base">Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {!isEditing && (
+              <div className="p-3.5 rounded-lg border bg-muted/30 space-y-2">
+                <Label htmlFor="auto-url-input" className="text-xs font-semibold flex items-center gap-1.5 text-foreground">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  Quick Autofill from Posting URL
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="auto-url-input"
+                    type="url"
+                    placeholder="Paste job link (LinkedIn, Greenhouse, Lever, etc.)..."
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    className="text-xs h-9 bg-background"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    disabled={isParsingUrl || !urlInput.trim()}
+                    onClick={handleAutoFetchUrl}
+                    className="shrink-0 h-9 text-xs gap-1.5"
+                  >
+                    {isParsingUrl ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Autofill'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="company">Company Name *</Label>

@@ -12,7 +12,7 @@ interface RecentApplicationsProps {
 
 export function RecentApplications({ applications }: RecentApplicationsProps) {
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-full bg-card border">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
@@ -36,9 +36,9 @@ export function RecentApplications({ applications }: RecentApplicationsProps) {
             <div className="h-10 w-10 rounded-full bg-muted text-muted-foreground flex items-center justify-center mx-auto">
               <Briefcase className="h-5 w-5" />
             </div>
-            <p className="text-sm font-medium">No applications logged yet</p>
+            <p className="text-sm font-medium">No applications yet</p>
             <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-              Start your job search journey by adding your first application.
+              Keep track of where you applied, interview dates, and notes.
             </p>
             <Button asChild size="sm" variant="outline">
               <Link href="/applications/new">
@@ -48,25 +48,30 @@ export function RecentApplications({ applications }: RecentApplicationsProps) {
             </Button>
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="divide-y text-xs">
             {applications.map((app) => (
               <div
                 key={app.id}
-                className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4"
+                className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3"
               >
-                <div className="min-w-0">
-                  <Link
-                    href={`/applications/${app.id}`}
-                    className="font-medium text-sm hover:underline truncate block"
-                  >
-                    {app.company}
-                  </Link>
-                  <p className="text-xs text-muted-foreground truncate">{app.jobTitle}</p>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-6 h-6 rounded bg-muted border font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
+                    {app.company.charAt(0).toUpperCase()}
+                  </span>
+                  <div className="min-w-0">
+                    <Link
+                      href={`/applications/${app.id}`}
+                      className="font-medium text-foreground hover:underline truncate block"
+                    >
+                      {app.company}
+                    </Link>
+                    <p className="text-[11px] text-muted-foreground truncate">{app.jobTitle}</p>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-2.5 shrink-0">
                   <StatusBadge status={app.status} />
-                  <span className="text-xs text-muted-foreground hidden sm:inline">
+                  <span className="text-[11px] font-mono text-muted-foreground hidden sm:inline">
                     {formatDate(app.applicationDate || app.createdAt)}
                   </span>
                 </div>

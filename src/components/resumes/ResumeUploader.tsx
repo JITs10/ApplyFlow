@@ -104,7 +104,7 @@ export function ResumeUploader() {
             {uploading ? 'Uploading your resume...' : 'Click or drag resume file to upload'}
           </h3>
           <p className="text-xs text-muted-foreground max-w-sm mb-4">
-            Supports PDF and Word documents (.pdf, .docx) up to 10 MB. Files are stored securely on cloud CDN.
+            Supports PDF and Word documents (.pdf, .docx) up to 10 MB. Files are private and stored securely.
           </p>
 
           <Button size="sm" disabled={uploading} type="button">

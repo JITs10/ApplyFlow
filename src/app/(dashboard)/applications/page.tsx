@@ -14,7 +14,8 @@ import { StatusBadge } from '@/components/applications/StatusBadge'
 import { ApplicationFilters } from '@/components/applications/ApplicationFilters'
 import { PaginationControls } from '@/components/applications/PaginationControls'
 import { formatDate } from '@/lib/utils'
-import { Plus, Briefcase, ChevronRight, SearchX, Download } from 'lucide-react'
+import { Plus, Briefcase, ChevronRight, SearchX, Download, Sparkles, Kanban } from 'lucide-react'
+import { seedDemoDataAction } from '@/actions/demo'
 import type { ApplicationStatus, Prisma } from '@prisma/client'
 
 export const metadata = {
@@ -97,13 +98,22 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Applications</h1>
+          <h1 className="text-3xl font-serif tracking-tight">
+            Applications <span className="serif-accent text-emerald-700 dark:text-emerald-400">List</span>
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Manage, filter, and track all your active job applications in one place.
+            Manage, filter, and track all your job applications in one place.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          <Button variant="outline" asChild className="gap-2">
+            <Link href="/kanban">
+              <Kanban className="h-4 w-4" />
+              Board View
+            </Link>
+          </Button>
+
           {totalUserApps > 0 && (
             <Button variant="outline" asChild className="gap-2">
               <a href="/api/applications/export" download>
@@ -123,23 +133,30 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
       </div>
 
       {totalUserApps === 0 ? (
-        <div className="rounded-xl border border-dashed p-12 text-center space-y-4">
-          <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
-            <Briefcase className="h-6 w-6" />
+        <div className="rounded-xl border border-dashed p-12 text-center space-y-4 bg-card">
+          <div className="h-12 w-12 rounded-xl bg-muted border text-foreground flex items-center justify-center mx-auto font-mono font-bold">
+            AF
           </div>
           <div className="space-y-1">
             <h2 className="text-lg font-semibold">No applications yet</h2>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              You haven&apos;t added any job applications to your workspace yet.
-              Add your first role to begin tracking your progress.
+              You haven&apos;t added any job applications yet. Add your first job application or load sample roles to get started.
             </p>
           </div>
-          <Button asChild size="sm">
-            <Link href="/applications/new">
-              <Plus className="h-4 w-4 mr-2" />
-              Add First Application
-            </Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <form action={seedDemoDataAction}>
+              <Button type="submit" variant="secondary" size="sm" className="gap-2">
+                <Sparkles className="h-3.5 w-3.5" />
+                Load Sample Roles (Vercel, Stripe, Linear)
+              </Button>
+            </form>
+            <Button asChild size="sm">
+              <Link href="/applications/new">
+                <Plus className="h-4 w-4 mr-2" />
+                Add First Application
+              </Link>
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -180,10 +197,15 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                         <TableCell>
                           <Link
                             href={`/applications/${app.id}`}
-                            className="font-medium hover:underline flex flex-col"
+                            className="font-medium hover:underline flex items-center gap-2.5"
                           >
-                            <span className="font-semibold text-foreground">{app.company}</span>
-                            <span className="text-xs text-muted-foreground">{app.jobTitle}</span>
+                            <span className="w-6 h-6 rounded bg-muted border font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
+                              {app.company.charAt(0).toUpperCase()}
+                            </span>
+                            <div className="min-w-0">
+                              <span className="font-semibold text-foreground block truncate">{app.company}</span>
+                              <span className="text-xs text-muted-foreground block truncate">{app.jobTitle}</span>
+                            </div>
                           </Link>
                         </TableCell>
 
@@ -191,7 +213,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                           <StatusBadge status={app.status} />
                         </TableCell>
 
-                        <TableCell className="hidden md:table-cell text-muted-foreground text-xs">
+                        <TableCell className="hidden md:table-cell text-muted-foreground text-xs font-mono">
                           {formatDate(app.applicationDate)}
                         </TableCell>
 
@@ -200,7 +222,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                           {app.workMode && ` (${app.workMode})`}
                         </TableCell>
 
-                        <TableCell className="hidden sm:table-cell text-muted-foreground text-xs">
+                        <TableCell className="hidden sm:table-cell text-muted-foreground text-xs font-mono">
                           {formatDate(app.nextFollowUpAt)}
                         </TableCell>
 

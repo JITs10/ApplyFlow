@@ -107,9 +107,11 @@ export function CalendarView({ interviews, applications }: CalendarViewProps) {
       {/* Top Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Interview Calendar</h1>
+          <h1 className="text-3xl font-serif tracking-tight">
+            Interview <span className="serif-accent text-emerald-700 dark:text-emerald-400">Calendar</span>
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Schedule, track, and prep for upcoming interview rounds and assessment deadlines.
+            Schedule, track, and prepare for upcoming interviews and deadlines.
           </p>
         </div>
 

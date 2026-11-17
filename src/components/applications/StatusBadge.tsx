@@ -4,35 +4,42 @@ import type { ApplicationStatus } from '@prisma/client'
 
 const STATUS_CONFIG: Record<
   ApplicationStatus,
-  { label: string; className: string }
+  { label: string; dotClass: string; badgeClass: string }
 > = {
   WISHLIST: {
     label: 'Wishlist',
-    className: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-700',
+    dotClass: 'bg-stone-400',
+    badgeClass: 'border-border bg-muted/60 text-muted-foreground',
   },
   APPLIED: {
     label: 'Applied',
-    className: 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+    dotClass: 'bg-blue-500',
+    badgeClass: 'border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300',
   },
   ASSESSMENT: {
     label: 'Assessment',
-    className: 'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+    dotClass: 'bg-purple-500',
+    badgeClass: 'border-purple-500/20 bg-purple-500/10 text-purple-700 dark:text-purple-300',
   },
   INTERVIEW: {
     label: 'Interview',
-    className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+    dotClass: 'bg-amber-500',
+    badgeClass: 'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300',
   },
   OFFER: {
     label: 'Offer',
-    className: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+    dotClass: 'bg-emerald-500',
+    badgeClass: 'border-emerald-500/30 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-semibold',
   },
   REJECTED: {
     label: 'Rejected',
-    className: 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+    dotClass: 'bg-rose-500',
+    badgeClass: 'border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-300',
   },
   WITHDRAWN: {
     label: 'Withdrawn',
-    className: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700',
+    dotClass: 'bg-stone-400',
+    badgeClass: 'border-border bg-muted/40 text-muted-foreground/80',
   },
 }
 
@@ -45,15 +52,21 @@ export function StatusBadge({
 }) {
   const config = STATUS_CONFIG[status] || {
     label: status,
-    className: 'bg-muted text-muted-foreground',
+    dotClass: 'bg-muted-foreground',
+    badgeClass: 'border-border bg-muted/20 text-muted-foreground',
   }
 
   return (
     <Badge
       variant="outline"
-      className={cn('font-medium border', config.className, className)}
+      className={cn(
+        'font-mono text-[11px] font-medium border inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full shadow-2xs',
+        config.badgeClass,
+        className
+      )}
     >
-      {config.label}
+      <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', config.dotClass)} />
+      <span>{config.label}</span>
     </Badge>
   )
 }

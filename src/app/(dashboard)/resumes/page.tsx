@@ -16,6 +16,15 @@ export default async function ResumesPage() {
       _count: {
         select: { applications: true },
       },
+      applications: {
+        select: {
+          id: true,
+          company: true,
+          jobTitle: true,
+          status: true,
+        },
+        take: 6,
+      },
     },
     orderBy: { createdAt: 'desc' },
   })
@@ -23,9 +32,11 @@ export default async function ResumesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Resume Library</h1>
+        <h1 className="text-3xl font-serif tracking-tight">
+          Resume <span className="serif-accent text-emerald-700 dark:text-emerald-400">Library</span>
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Store, organize, and track your tailored resume versions (.pdf, .docx).
+          Save and organize your resume versions so you always know which one you sent.
         </p>
       </div>
 

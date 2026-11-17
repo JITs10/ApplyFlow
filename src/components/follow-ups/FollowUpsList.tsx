@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ScheduleFollowUpDialog } from '@/components/follow-ups/ScheduleFollowUpDialog'
+import { EmailTemplatesDialog } from '@/components/follow-ups/EmailTemplatesDialog'
 import {
   markFollowUpComplete,
   snoozeFollowUp,
@@ -36,6 +37,7 @@ import {
   MoreVertical,
   Bell,
   ArrowRight,
+  FileText,
 } from 'lucide-react'
 import { cn, formatDate } from '@/lib/utils'
 
@@ -146,9 +148,11 @@ export function FollowUpsList({ followUps, applications }: FollowUpsListProps) {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Follow-Ups & Reminders</h1>
+          <h1 className="text-3xl font-serif tracking-tight">
+            Follow-Ups & <span className="serif-accent text-emerald-700 dark:text-emerald-400">Reminders</span>
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Stay top of mind with recruiters and track post-application or post-interview communications.
+            Never forget to check in on an application or follow up after an interview.
           </p>
         </div>
 
@@ -183,6 +187,7 @@ export function FollowUpsList({ followUps, applications }: FollowUpsListProps) {
             </button>
           </div>
 
+          <EmailTemplatesDialog />
           <ScheduleFollowUpDialog applications={applications} />
         </div>
       </div>
@@ -219,14 +224,14 @@ export function FollowUpsList({ followUps, applications }: FollowUpsListProps) {
                 <Card
                   key={item.id}
                   className={cn(
-                    'overflow-hidden transition-all border',
+                    'rx-card rounded-xl overflow-hidden transition-all',
                     isPast(dueDate) && !isToday(dueDate) && 'border-destructive/30 bg-destructive/5'
                   )}
                 >
                   <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-2 min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-base">{item.application.company}</span>
+                        <span className="font-semibold text-base text-foreground">{item.application.company}</span>
                         <span className="text-xs text-muted-foreground">•</span>
                         <span className="text-sm text-muted-foreground">{item.application.jobTitle}</span>
 
@@ -242,7 +247,7 @@ export function FollowUpsList({ followUps, applications }: FollowUpsListProps) {
                       </div>
 
                       {item.notes && (
-                        <p className="text-xs sm:text-sm text-foreground/90 bg-muted/50 p-2.5 rounded-md border text-muted-foreground">
+                        <p className="text-xs sm:text-sm bg-muted/40 p-2.5 rounded-md border border-border/70 text-foreground/90">
                           {item.notes}
                         </p>
                       )}
@@ -273,20 +278,33 @@ export function FollowUpsList({ followUps, applications }: FollowUpsListProps) {
 
                     {/* Action buttons */}
                     <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0">
+                      <EmailTemplatesDialog
+                        company={item.application.company}
+                        jobTitle={item.application.jobTitle}
+                        contactName={item.application.contactName || undefined}
+                        contactEmail={item.application.contactEmail || undefined}
+                        trigger={
+                          <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+                            <FileText className="h-3.5 w-3.5 text-primary" />
+                            Draft
+                          </Button>
+                        }
+                      />
+
                       <Button
                         size="sm"
                         onClick={() => handleComplete(item.id)}
                         disabled={loadingId === item.id}
-                        className="gap-1.5"
+                        className="gap-1.5 h-8 text-xs"
                       >
-                        <Check className="h-4 w-4" />
+                        <Check className="h-3.5 w-3.5" />
                         Done
                       </Button>
 
                       {/* Snooze Dropdown */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="gap-1 text-xs">
+                          <Button variant="outline" size="sm" className="gap-1 text-xs h-8">
                             <Clock className="h-3.5 w-3.5 mr-1" />
                             Snooze
                           </Button>
