@@ -32,7 +32,22 @@ export async function uploadResume(userId: string, file: File) {
   // If Vercel Blob token is set, use cloud storage
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const key = `resumes/${userId}/${filename}`
-    const blob = await put(key, file, { access: 'public' })
+    let blob
+    try {
+      // Modern Vercel Blob stores configure private access by default
+      const preferredAccess = (process.env.BLOB_ACCESS as 'public' | 'private') || 'private'
+      blob = await put(key, file, { access: preferredAccess })
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err)
+      if (errMsg.includes('Cannot use private access on a public store') || errMsg.includes('public store')) {
+        blob = await put(key, file, { access: 'public' })
+      } else if (errMsg.includes('Cannot use public access on a private store') || errMsg.includes('private store')) {
+        blob = await put(key, file, { access: 'private' })
+      } else {
+        throw err
+      }
+    }
+
     return {
       storageKey: blob.url,
       fileName: file.name,
