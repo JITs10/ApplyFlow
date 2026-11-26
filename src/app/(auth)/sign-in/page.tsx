@@ -1,4 +1,5 @@
-import { signIn } from '@/auth'
+import { auth, signIn } from '@/auth'
+import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { ArrowLeft, Check, ShieldCheck, Sparkles } from 'lucide-react'
@@ -10,7 +11,12 @@ export const metadata = {
   description: 'Sign in to track your job applications, interviews, and resume versions.',
 }
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const session = await auth()
+  if (session?.user) {
+    redirect('/dashboard')
+  }
+
   return (
     <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-12 bg-background text-foreground selection:bg-emerald-500/20">
       {/* Left Column: Dossier Context, Live Triage Telemetry & Candidate Ethos */}
