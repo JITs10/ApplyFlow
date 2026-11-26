@@ -23,7 +23,12 @@ import { Logo } from '@/components/brand/Logo'
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  const session = await auth()
+  let session = null
+  try {
+    session = await auth()
+  } catch (error) {
+    console.error('Session check failed on HomePage:', error)
+  }
   const isLoggedIn = !!session?.user
 
   return (

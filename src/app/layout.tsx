@@ -3,10 +3,25 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'sonner'
 import './globals.css'
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://applyflow.dev'
+const rawAppUrl =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://applyflow.dev')
+
+function getSafeBaseUrl(urlInput: string): URL {
+  try {
+    const formatted = urlInput.startsWith('http://') || urlInput.startsWith('https://')
+      ? urlInput
+      : `https://${urlInput}`
+    return new URL(formatted)
+  } catch {
+    return new URL('https://applyflow.dev')
+  }
+}
+
+const appUrl = getSafeBaseUrl(rawAppUrl)
 
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
+  metadataBase: appUrl,
   title: {
     default: 'ApplyFlow — The Candidate Command Center',
     template: '%s | ApplyFlow',
@@ -27,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: appUrl,
+    url: appUrl.toString(),
     title: 'ApplyFlow — The Candidate Command Center',
     description:
       'Spreadsheets decay by week three. ApplyFlow gives engineers keyboard speed, actionable triage, and exact resume-to-role traceability — 100% free with zero recruiter surveillance.',
