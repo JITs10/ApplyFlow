@@ -5,6 +5,14 @@ import { db } from '@/lib/db'
 import { authConfig } from '@/auth.config'
 import { getOrCreateGuestUser, isGuestUser } from '@/lib/guest'
 
+// Prevent localhost environment variables from breaking host resolution on Vercel
+if ((process.env.VERCEL || process.env.NODE_ENV === 'production') && process.env.AUTH_URL?.includes('localhost')) {
+  delete process.env.AUTH_URL
+}
+if ((process.env.VERCEL || process.env.NODE_ENV === 'production') && process.env.NEXTAUTH_URL?.includes('localhost')) {
+  delete process.env.NEXTAUTH_URL
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   trustHost: true,

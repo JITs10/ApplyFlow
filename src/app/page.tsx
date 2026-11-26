@@ -1,4 +1,4 @@
-import { auth, signIn } from '@/auth'
+import { auth } from '@/auth'
 import Link from 'next/link'
 import {
   ArrowRight,
@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button'
 import { InteractiveProductPreview } from '@/components/landing/InteractiveProductPreview'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Logo } from '@/components/brand/Logo'
+import { GuestSignInButton, GitHubSignInButton } from '@/components/auth/AuthButtons'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,31 +90,21 @@ export default async function HomePage() {
               </Button>
             ) : (
               <div className="flex items-center gap-2">
-                <form
-                  action={async () => {
-                    'use server'
-                    await signIn('guest', { redirectTo: '/dashboard' })
-                  }}
+                <GuestSignInButton
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 font-medium text-xs text-muted-foreground hover:text-foreground hidden sm:inline-flex cursor-pointer"
                 >
-                  <Button variant="ghost" size="sm" type="submit" className="gap-1.5 font-medium text-xs text-muted-foreground hover:text-foreground hidden sm:inline-flex cursor-pointer">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                    Guest Demo
-                  </Button>
-                </form>
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  Guest Demo
+                </GuestSignInButton>
                 <Button asChild variant="ghost" size="sm" className="font-medium text-xs">
                   <Link href="/sign-in">Sign In</Link>
                 </Button>
-                <form
-                  action={async () => {
-                    'use server'
-                    await signIn('github', { redirectTo: '/dashboard' })
-                  }}
-                >
-                  <Button size="sm" type="submit" className="gap-1.5 font-medium text-xs">
-                    Get Started
-                    <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                  </Button>
-                </form>
+                <GitHubSignInButton size="sm" className="gap-1.5 font-medium text-xs cursor-pointer">
+                  Get Started
+                  <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                </GitHubSignInButton>
               </div>
             )}
           </nav>
@@ -150,32 +141,22 @@ export default async function HomePage() {
               </Button>
             ) : (
               <>
-                <form
-                  action={async () => {
-                    'use server'
-                    await signIn('github', { redirectTo: '/dashboard' })
-                  }}
-                >
-                  <Button size="lg" type="submit" className="gap-2.5 px-6 font-medium shadow-sm hover:shadow-md active:translate-y-px transition-all cursor-pointer">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                    </svg>
-                    Get Started with GitHub
-                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </Button>
-                </form>
+                <GitHubSignInButton size="lg" className="gap-2.5 px-6 font-medium shadow-sm hover:shadow-md active:translate-y-px transition-all cursor-pointer">
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                  </svg>
+                  Get Started with GitHub
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </GitHubSignInButton>
 
-                <form
-                  action={async () => {
-                    'use server'
-                    await signIn('guest', { redirectTo: '/dashboard' })
-                  }}
+                <GuestSignInButton
+                  variant="outline"
+                  size="lg"
+                  className="gap-2 px-5 font-medium shadow-xs hover:bg-muted/60 transition-all cursor-pointer"
                 >
-                  <Button variant="outline" size="lg" type="submit" className="gap-2 px-5 font-medium shadow-xs hover:bg-muted/60 transition-all cursor-pointer">
-                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    Explore as Guest
-                  </Button>
-                </form>
+                  <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  Explore as Guest
+                </GuestSignInButton>
               </>
             )}
 
@@ -447,17 +428,10 @@ export default async function HomePage() {
                 </Link>
               </Button>
             ) : (
-              <form
-                action={async () => {
-                  'use server'
-                  await signIn('github', { redirectTo: '/dashboard' })
-                }}
-              >
-                <Button size="lg" type="submit" className="gap-2 font-medium">
-                  Get Started with GitHub
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Button>
-              </form>
+              <GitHubSignInButton size="lg" className="gap-2 font-medium cursor-pointer">
+                Get Started with GitHub
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </GitHubSignInButton>
             )}
           </div>
         </section>
@@ -532,20 +506,13 @@ export default async function HomePage() {
                 </Link>
               </Button>
             ) : (
-              <form
-                action={async () => {
-                  'use server'
-                  await signIn('github', { redirectTo: '/dashboard' })
-                }}
-              >
-                <Button size="lg" type="submit" className="gap-2 font-medium">
-                  <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                  </svg>
-                  Get Started with GitHub
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Button>
-              </form>
+              <GitHubSignInButton size="lg" className="gap-2 font-medium cursor-pointer">
+                <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                </svg>
+                Get Started with GitHub
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </GitHubSignInButton>
             )}
 
             <Button asChild variant="outline" size="lg" className="font-medium">
