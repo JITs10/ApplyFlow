@@ -33,11 +33,6 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(signInUrl)
     }
 
-    // If authenticated user navigates to /sign-in, redirect to /dashboard
-    if (isAuthPage && hasSession) {
-      return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin))
-    }
-
     return NextResponse.next()
   } catch (error) {
     // Fail open safely on edge so an unhandled proxy error never crashes the entire application

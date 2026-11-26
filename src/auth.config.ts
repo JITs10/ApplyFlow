@@ -1,12 +1,22 @@
 import type { NextAuthConfig } from 'next-auth'
 import GitHub from 'next-auth/providers/github'
 
-// Prevent localhost environment variables from breaking host resolution on Vercel
-if ((process.env.VERCEL || process.env.NODE_ENV === 'production') && process.env.AUTH_URL?.includes('localhost')) {
-  delete process.env.AUTH_URL
-}
-if ((process.env.VERCEL || process.env.NODE_ENV === 'production') && process.env.NEXTAUTH_URL?.includes('localhost')) {
-  delete process.env.NEXTAUTH_URL
+// Prevent misconfigured environment variables from breaking host resolution on Vercel
+if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  if (
+    process.env.AUTH_URL?.includes('localhost') ||
+    process.env.AUTH_URL?.startsWith('http://') ||
+    process.env.AUTH_URL?.includes('applyflow-six')
+  ) {
+    delete process.env.AUTH_URL
+  }
+  if (
+    process.env.NEXTAUTH_URL?.includes('localhost') ||
+    process.env.NEXTAUTH_URL?.startsWith('http://') ||
+    process.env.NEXTAUTH_URL?.includes('applyflow-six')
+  ) {
+    delete process.env.NEXTAUTH_URL
+  }
 }
 
 export const authConfig = {
