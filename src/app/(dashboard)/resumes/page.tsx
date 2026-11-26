@@ -14,24 +14,29 @@ export default async function ResumesPage() {
   const user = await requireUser()
   const isGuest = isGuestUser(user.email)
 
-  const resumes = await db.resume.findMany({
-    where: { userId: user.id },
-    include: {
-      _count: {
-        select: { applications: true },
-      },
-      applications: {
-        select: {
-          id: true,
-          company: true,
-          jobTitle: true,
-          status: true,
+  let resumes: any[] = []
+  try {
+    resumes = await db.resume.findMany({
+      where: { userId: user.id },
+      include: {
+        _count: {
+          select: { applications: true },
         },
-        take: 6,
+        applications: {
+          select: {
+            id: true,
+            company: true,
+            jobTitle: true,
+            status: true,
+          },
+          take: 6,
+        },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
+      orderBy: { createdAt: 'desc' },
+    })
+  } catch (err) {
+    console.warn('Resumes DB query failed or DB offline, using empty list:', err)
+  }
 
   return (
     <div className="space-y-8">

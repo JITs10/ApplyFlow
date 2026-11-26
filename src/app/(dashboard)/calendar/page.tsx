@@ -9,30 +9,39 @@ export const metadata = {
 export default async function CalendarPage() {
   const user = await requireUser()
 
-  const [interviews, applications] = await Promise.all([
-    db.interview.findMany({
-      where: { userId: user.id },
-      orderBy: { startAt: 'asc' },
-      include: {
-        application: {
-          select: {
-            id: true,
-            company: true,
-            jobTitle: true,
+  let interviews: any[] = []
+  let applications: any[] = []
+
+  try {
+    const results = await Promise.all([
+      db.interview.findMany({
+        where: { userId: user.id },
+        orderBy: { startAt: 'asc' },
+        include: {
+          application: {
+            select: {
+              id: true,
+              company: true,
+              jobTitle: true,
+            },
           },
         },
-      },
-    }),
-    db.application.findMany({
-      where: { userId: user.id },
-      select: {
-        id: true,
-        company: true,
-        jobTitle: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    }),
-  ])
+      }),
+      db.application.findMany({
+        where: { userId: user.id },
+        select: {
+          id: true,
+          company: true,
+          jobTitle: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ])
+    interviews = results[0]
+    applications = results[1]
+  } catch (err) {
+    console.warn('Calendar DB query failed or DB offline, using empty defaults:', err)
+  }
 
   return <CalendarView interviews={interviews} applications={applications} />
 }

@@ -80,17 +80,28 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
     orderBy = { applicationDate: 'desc' }
   }
 
-  // Count total matching rows and fetch paginated records atomically
-  const [applications, totalCount, totalUserApps] = await db.$transaction([
-    db.application.findMany({
-      where,
-      orderBy,
-      skip: (pageParam - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
-    db.application.count({ where }),
-    db.application.count({ where: { userId: user.id } }),
-  ])
+  // Count total matching rows and fetch paginated records atomically with fallback
+  let applications: any[] = []
+  let totalCount = 0
+  let totalUserApps = 0
+
+  try {
+    const results = await db.$transaction([
+      db.application.findMany({
+        where,
+        orderBy,
+        skip: (pageParam - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+      }),
+      db.application.count({ where }),
+      db.application.count({ where: { userId: user.id } }),
+    ])
+    applications = results[0]
+    totalCount = results[1]
+    totalUserApps = results[2]
+  } catch (err) {
+    console.warn('Applications DB query failed or DB offline, using empty list:', err)
+  }
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 

@@ -10,32 +10,37 @@ export const metadata = {
 export default async function KanbanPage() {
   const user = await requireUser()
 
-  const rawApplications = await db.application.findMany({
-    where: { userId: user.id },
-    orderBy: { updatedAt: 'desc' },
-    select: {
-      id: true,
-      company: true,
-      jobTitle: true,
-      status: true,
-      location: true,
-      workMode: true,
-      salaryMin: true,
-      salaryMax: true,
-      currency: true,
-      nextFollowUpAt: true,
-      updatedAt: true,
-      jobUrl: true,
-      resume: {
-        select: { fileName: true },
+  let rawApplications: any[] = []
+  try {
+    rawApplications = await db.application.findMany({
+      where: { userId: user.id },
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        company: true,
+        jobTitle: true,
+        status: true,
+        location: true,
+        workMode: true,
+        salaryMin: true,
+        salaryMax: true,
+        currency: true,
+        nextFollowUpAt: true,
+        updatedAt: true,
+        jobUrl: true,
+        resume: {
+          select: { fileName: true },
+        },
+        interviews: {
+          select: { startAt: true, title: true },
+          orderBy: { startAt: 'asc' },
+          take: 1,
+        },
       },
-      interviews: {
-        select: { startAt: true, title: true },
-        orderBy: { startAt: 'asc' },
-        take: 1,
-      },
-    },
-  })
+    })
+  } catch (err) {
+    console.warn('Kanban DB query failed or DB offline, using empty list:', err)
+  }
 
   // Format decimal values to clean numbers for client component serialization
   const applications = rawApplications.map((app) => ({

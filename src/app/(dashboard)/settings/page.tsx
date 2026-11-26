@@ -11,11 +11,22 @@ export const metadata = {
 export default async function SettingsPage() {
   const user = await requireUser()
 
-  const [appCount, resumeCount, interviewCount] = await Promise.all([
-    db.application.count({ where: { userId: user.id } }),
-    db.resume.count({ where: { userId: user.id } }),
-    db.interview.count({ where: { userId: user.id } }),
-  ])
+  let appCount = 0
+  let resumeCount = 0
+  let interviewCount = 0
+
+  try {
+    const results = await Promise.all([
+      db.application.count({ where: { userId: user.id } }),
+      db.resume.count({ where: { userId: user.id } }),
+      db.interview.count({ where: { userId: user.id } }),
+    ])
+    appCount = results[0]
+    resumeCount = results[1]
+    interviewCount = results[2]
+  } catch (err) {
+    console.warn('Settings DB query failed or DB offline, using empty counts:', err)
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

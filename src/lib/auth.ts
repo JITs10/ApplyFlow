@@ -11,7 +11,22 @@ export async function requireUser() {
   if (!session?.user?.id) {
     throw new Error('Unauthenticated')
   }
-  return db.user.findUniqueOrThrow({ where: { id: session.user.id } })
+  try {
+    return await db.user.findUniqueOrThrow({ where: { id: session.user.id } })
+  } catch (err) {
+    if (session.user.isGuest) {
+      return {
+        id: session.user.id,
+        email: session.user.email || 'guest@applyflow.dev',
+        name: session.user.name || 'Guest Explorer',
+        image: session.user.image || null,
+        emailVerified: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    }
+    throw err
+  }
 }
 
 /**

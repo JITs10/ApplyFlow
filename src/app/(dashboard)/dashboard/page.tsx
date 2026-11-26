@@ -18,98 +18,112 @@ export default async function DashboardPage() {
   const now = new Date()
   const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
 
-  // Run all dashboard counts and triage queries in parallel
-  const [
-    totalApps,
-    inReviewCount,
-    interviewCount,
-    offerCount,
-    recentApplications,
-    upcomingInterviews,
-    urgentInterviews,
-    overdueFollowUps,
-    demoCount,
-  ] = await Promise.all([
-    db.application.count({ where: { userId: user.id } }),
-    db.application.count({
-      where: {
-        userId: user.id,
-        status: { in: ['APPLIED', 'ASSESSMENT'] },
-      },
-    }),
-    db.application.count({
-      where: {
-        userId: user.id,
-        status: 'INTERVIEW',
-      },
-    }),
-    db.application.count({
-      where: {
-        userId: user.id,
-        status: 'OFFER',
-      },
-    }),
-    db.application.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-    }),
-    db.interview.findMany({
-      where: {
-        application: { userId: user.id },
-        startAt: { gte: now },
-      },
-      orderBy: { startAt: 'asc' },
-      take: 4,
-      include: {
-        application: {
-          select: {
-            id: true,
-            company: true,
-            jobTitle: true,
+  // Run all dashboard counts and triage queries in parallel with fallback for offline/connecting DB
+  let totalApps = 0
+  let inReviewCount = 0
+  let interviewCount = 0
+  let offerCount = 0
+  let recentApplications: any[] = []
+  let upcomingInterviews: any[] = []
+  let urgentInterviews: any[] = []
+  let overdueFollowUps: any[] = []
+  let demoCount = 0
+
+  try {
+    const results = await Promise.all([
+      db.application.count({ where: { userId: user.id } }),
+      db.application.count({
+        where: {
+          userId: user.id,
+          status: { in: ['APPLIED', 'ASSESSMENT'] },
+        },
+      }),
+      db.application.count({
+        where: {
+          userId: user.id,
+          status: 'INTERVIEW',
+        },
+      }),
+      db.application.count({
+        where: {
+          userId: user.id,
+          status: 'OFFER',
+        },
+      }),
+      db.application.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      }),
+      db.interview.findMany({
+        where: {
+          application: { userId: user.id },
+          startAt: { gte: now },
+        },
+        orderBy: { startAt: 'asc' },
+        take: 4,
+        include: {
+          application: {
+            select: {
+              id: true,
+              company: true,
+              jobTitle: true,
+            },
           },
         },
-      },
-    }),
-    db.interview.findMany({
-      where: {
-        application: { userId: user.id },
-        startAt: { gte: now, lte: threeDaysFromNow },
-      },
-      orderBy: { startAt: 'asc' },
-      take: 2,
-      include: {
-        application: {
-          select: {
-            id: true,
-            company: true,
-            jobTitle: true,
+      }),
+      db.interview.findMany({
+        where: {
+          application: { userId: user.id },
+          startAt: { gte: now, lte: threeDaysFromNow },
+        },
+        orderBy: { startAt: 'asc' },
+        take: 2,
+        include: {
+          application: {
+            select: {
+              id: true,
+              company: true,
+              jobTitle: true,
+            },
           },
         },
-      },
-    }),
-    db.application.findMany({
-      where: {
-        userId: user.id,
-        nextFollowUpAt: { lte: now },
-        status: { notIn: ['REJECTED', 'WITHDRAWN', 'OFFER'] },
-      },
-      orderBy: { nextFollowUpAt: 'asc' },
-      take: 2,
-      select: {
-        id: true,
-        company: true,
-        jobTitle: true,
-        nextFollowUpAt: true,
-      },
-    }),
-    db.application.count({
-      where: {
-        userId: user.id,
-        generalNotes: { contains: '[Demo]' },
-      },
-    }),
-  ])
+      }),
+      db.application.findMany({
+        where: {
+          userId: user.id,
+          nextFollowUpAt: { lte: now },
+          status: { notIn: ['REJECTED', 'WITHDRAWN', 'OFFER'] },
+        },
+        orderBy: { nextFollowUpAt: 'asc' },
+        take: 2,
+        select: {
+          id: true,
+          company: true,
+          jobTitle: true,
+          nextFollowUpAt: true,
+        },
+      }),
+      db.application.count({
+        where: {
+          userId: user.id,
+          generalNotes: { contains: '[Demo]' },
+        },
+      }),
+    ])
+
+    totalApps = results[0]
+    inReviewCount = results[1]
+    interviewCount = results[2]
+    offerCount = results[3]
+    recentApplications = results[4]
+    upcomingInterviews = results[5]
+    urgentInterviews = results[6]
+    overdueFollowUps = results[7]
+    demoCount = results[8]
+  } catch (dbErr) {
+    console.warn('Dashboard DB queries failed or DB offline, using empty defaults:', dbErr)
+  }
 
   const hasTriageItems = urgentInterviews.length > 0 || overdueFollowUps.length > 0
   const hasDemoData = demoCount > 0

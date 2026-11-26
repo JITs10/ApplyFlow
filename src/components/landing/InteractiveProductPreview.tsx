@@ -67,6 +67,11 @@ export function InteractiveProductPreview() {
 
   return (
     <div className="w-full flex flex-col items-center">
+      {/* Elevated interactive view switcher (outside clipped window to avoid occlusion) */}
+      <div className="mb-5 flex items-center justify-center">
+        <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div>
+
       {/* Main Split-Slider Container */}
       <div
         ref={containerRef}
@@ -140,8 +145,11 @@ export function InteractiveProductPreview() {
               <Puzzle className="w-3.5 h-3.5 text-muted-foreground hidden sm:block shrink-0" />
             </div>
 
-            {/* View Switcher Tabs */}
-            <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* Active View Badge */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/50 border border-border/60 text-[11px] font-mono text-muted-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>{activeTab === 'table' ? 'Triage Table' : activeTab === 'kanban' ? 'Kanban Board' : 'Resume Vault'}</span>
+            </div>
           </div>
 
           {/* Workspace Content (Windows Base) */}
@@ -205,8 +213,11 @@ export function InteractiveProductPreview() {
               <Puzzle className="w-3.5 h-3.5 text-muted-foreground hidden sm:block shrink-0" />
             </div>
 
-            {/* View Switcher Tabs */}
-            <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* Active View Badge */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/50 border border-border/60 text-[11px] font-mono text-muted-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>{activeTab === 'table' ? 'Triage Table' : activeTab === 'kanban' ? 'Kanban Board' : 'Resume Vault'}</span>
+            </div>
           </div>
 
           {/* Workspace Content (macOS Clipped Layer) */}

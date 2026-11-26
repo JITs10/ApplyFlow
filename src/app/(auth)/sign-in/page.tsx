@@ -11,10 +11,20 @@ export const metadata = {
   description: 'Sign in to track your job applications, interviews, and resume versions.',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function SignInPage() {
-  const session = await auth()
-  if (session?.user) {
-    redirect('/dashboard')
+  try {
+    const session = await auth()
+    if (session?.user) {
+      redirect('/dashboard')
+    }
+  } catch (error) {
+    const digest = (error as { digest?: string })?.digest
+    if (digest?.startsWith('NEXT_REDIRECT') || digest === 'DYNAMIC_SERVER_USAGE') {
+      throw error
+    }
+    console.warn('Session check failed or DB unreachable on SignInPage:', error)
   }
 
   return (

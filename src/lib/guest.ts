@@ -12,28 +12,48 @@ export function isGuestUser(email?: string | null): boolean {
  * rich sample applications and interviews are pre-seeded for realistic exploration.
  */
 export async function getOrCreateGuestUser() {
-  let user = await db.user.findUnique({
-    where: { email: GUEST_USER_EMAIL },
-  })
-
-  if (!user) {
-    user = await db.user.create({
-      data: {
-        email: GUEST_USER_EMAIL,
-        name: GUEST_USER_NAME,
-        image: null,
-      },
+  try {
+    let user = await db.user.findUnique({
+      where: { email: GUEST_USER_EMAIL },
     })
-    await seedGuestWorkspace(user.id)
-  } else {
-    // If guest user has 0 applications (e.g. fresh DB or reset), reseed
-    const count = await db.application.count({ where: { userId: user.id } })
-    if (count === 0) {
-      await seedGuestWorkspace(user.id)
+
+    if (!user) {
+      user = await db.user.create({
+        data: {
+          email: GUEST_USER_EMAIL,
+          name: GUEST_USER_NAME,
+          image: null,
+        },
+      })
+      try {
+        await seedGuestWorkspace(user.id)
+      } catch (seedErr) {
+        console.warn('Could not seed guest workspace:', seedErr)
+      }
+    } else {
+      try {
+        const count = await db.application.count({ where: { userId: user.id } })
+        if (count === 0) {
+          await seedGuestWorkspace(user.id)
+        }
+      } catch (countErr) {
+        console.warn('Could not check guest application count:', countErr)
+      }
+    }
+
+    return user
+  } catch (err) {
+    console.error('Database unreachable during guest user retrieval, using fallback guest session:', err)
+    return {
+      id: 'guest-explorer-fallback',
+      email: GUEST_USER_EMAIL,
+      name: GUEST_USER_NAME,
+      image: null,
+      emailVerified: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
   }
-
-  return user
 }
 
 /**
