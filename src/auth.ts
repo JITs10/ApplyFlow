@@ -7,6 +7,8 @@ import { getOrCreateGuestUser, isGuestUser } from '@/lib/guest'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  trustHost: true,
+  secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(db),
   session: { strategy: 'jwt' },
   providers: [

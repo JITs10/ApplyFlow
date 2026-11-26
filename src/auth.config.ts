@@ -2,6 +2,8 @@ import type { NextAuthConfig } from 'next-auth'
 import GitHub from 'next-auth/providers/github'
 
 export const authConfig = {
+  trustHost: true,
+  secret: process.env.AUTH_SECRET,
   providers: [GitHub],
   pages: {
     signIn: '/sign-in',
