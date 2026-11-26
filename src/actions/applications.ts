@@ -1,6 +1,6 @@
 'use server'
 
-import { requireUser } from '@/lib/auth'
+import { requireUser, assertNonGuest } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { applicationSchema, type ApplicationInput } from '@/lib/validation/application'
 import { revalidatePath } from 'next/cache'
@@ -8,6 +8,7 @@ import type { ApplicationStatus } from '@prisma/client'
 
 export async function createApplication(input: ApplicationInput) {
   const user = await requireUser()
+  await assertNonGuest(user)
   const validated = applicationSchema.parse(input)
 
   const application = await db.application.create({
@@ -60,6 +61,7 @@ export async function createApplication(input: ApplicationInput) {
 
 export async function updateApplication(id: string, input: ApplicationInput) {
   const user = await requireUser()
+  await assertNonGuest(user)
   const validated = applicationSchema.parse(input)
 
   // Verify ownership before updating
@@ -138,6 +140,7 @@ export async function updateApplication(id: string, input: ApplicationInput) {
 
 export async function deleteApplication(id: string) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const existing = await db.application.findFirst({
     where: { id, userId: user.id },
@@ -159,6 +162,7 @@ export async function deleteApplication(id: string) {
 
 export async function updateApplicationStatus(id: string, status: ApplicationStatus) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const existing = await db.application.findFirst({
     where: { id, userId: user.id },

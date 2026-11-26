@@ -48,10 +48,11 @@ const navGroups = [
 ]
 
 interface MobileNavProps {
-  user?: { name?: string | null; email?: string | null }
+  user?: { name?: string | null; email?: string | null; isGuest?: boolean }
+  isGuest?: boolean
 }
 
-export function MobileNav({ user }: MobileNavProps) {
+export function MobileNav({ user, isGuest }: MobileNavProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 

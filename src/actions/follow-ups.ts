@@ -1,12 +1,13 @@
 'use server'
 
-import { requireUser } from '@/lib/auth'
+import { requireUser, assertNonGuest } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { followUpSchema, type FollowUpInput } from '@/lib/validation/follow-up'
 import { revalidatePath } from 'next/cache'
 
 export async function createFollowUp(input: FollowUpInput) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const parsed = followUpSchema.safeParse(input)
   if (!parsed.success) {
@@ -75,6 +76,7 @@ export async function createFollowUp(input: FollowUpInput) {
 
 export async function markFollowUpComplete(id: string) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const followUp = await db.followUp.findFirst({
     where: { id, userId: user.id },
@@ -127,6 +129,7 @@ export async function markFollowUpComplete(id: string) {
 
 export async function snoozeFollowUp(id: string, daysToAdd: number) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const followUp = await db.followUp.findFirst({
     where: { id, userId: user.id },
@@ -181,6 +184,7 @@ export async function snoozeFollowUp(id: string, daysToAdd: number) {
 
 export async function deleteFollowUp(id: string) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const followUp = await db.followUp.findFirst({
     where: { id, userId: user.id },

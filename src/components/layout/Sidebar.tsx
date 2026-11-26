@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   ShieldCheck,
+  Sparkles,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -46,11 +47,13 @@ const navGroups = [
 ]
 
 interface SidebarProps {
-  user?: { name?: string | null; email?: string | null; image?: string | null }
+  user?: { name?: string | null; email?: string | null; image?: string | null; isGuest?: boolean }
+  isGuest?: boolean
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, isGuest }: SidebarProps) {
   const pathname = usePathname()
+  const guestActive = isGuest || user?.isGuest
 
   return (
     <aside className="hidden md:flex flex-col w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground shrink-0 select-none">
@@ -126,7 +129,11 @@ export function Sidebar({ user }: SidebarProps) {
       {/* User Profile & Theme Toggle Footer */}
       <div className="p-3.5 border-t border-sidebar-border bg-sidebar flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          {user?.image ? (
+          {guestActive ? (
+            <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
+              <Sparkles className="w-4 h-4" />
+            </div>
+          ) : user?.image ? (
             <Image
               src={user.image}
               alt={user.name || 'User profile'}
@@ -141,10 +148,10 @@ export function Sidebar({ user }: SidebarProps) {
           )}
           <div className="min-w-0">
             <p className="text-sm font-medium truncate text-foreground leading-none">
-              {user?.name || 'Candidate'}
+              {guestActive ? 'Guest Explorer' : user?.name || 'Candidate'}
             </p>
             <p className="text-xs text-muted-foreground truncate font-mono mt-1">
-              {user?.email}
+              {guestActive ? 'demo@applyflow.dev' : user?.email}
             </p>
           </div>
         </div>

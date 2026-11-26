@@ -1,12 +1,13 @@
 'use server'
 
-import { requireUser } from '@/lib/auth'
+import { requireUser, assertNonGuest } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { interviewSchema, type InterviewInput } from '@/lib/validation/interview'
 import { revalidatePath } from 'next/cache'
 
 export async function createInterview(input: InterviewInput) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const parsed = interviewSchema.safeParse(input)
   if (!parsed.success) {
@@ -60,6 +61,7 @@ export async function createInterview(input: InterviewInput) {
 
 export async function deleteInterview(id: string) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const interview = await db.interview.findFirst({
     where: { id, userId: user.id },

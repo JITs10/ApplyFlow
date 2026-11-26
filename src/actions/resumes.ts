@@ -1,12 +1,13 @@
 'use server'
 
-import { requireUser } from '@/lib/auth'
+import { requireUser, assertNonGuest } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { uploadResume, deleteResume, validateResumeFile } from '@/lib/storage/blob'
 import { revalidatePath } from 'next/cache'
 
 export async function uploadResumeAction(formData: FormData) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const file = formData.get('file') as File | null
   if (!file || !(file instanceof File) || file.size === 0) {
@@ -45,6 +46,7 @@ export async function uploadResumeAction(formData: FormData) {
 
 export async function deleteResumeAction(id: string) {
   const user = await requireUser()
+  await assertNonGuest(user)
 
   const resume = await db.resume.findFirst({
     where: { id, userId: user.id },
