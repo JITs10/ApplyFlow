@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/auth'
 import { isGuestUser } from '@/lib/guest'
+import { GitHubSignInButton } from '@/components/auth/AuthButtons'
 import { db } from '@/lib/db'
 import { ResumeUploader } from '@/components/resumes/ResumeUploader'
 import { ResumeList } from '@/components/resumes/ResumeList'
@@ -60,13 +61,13 @@ export default async function ResumesPage() {
               We&apos;ve loaded sample resumes for demonstration. To upload, version, and link your real PDF resumes to applications, connect your GitHub account.
             </p>
           </div>
-          <Link
-            href="/sign-in"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold shrink-0 transition-colors shadow-xs"
+          <GitHubSignInButton
+            size="sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold shrink-0 transition-colors shadow-xs h-auto"
           >
             <span>Connect GitHub</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          </GitHubSignInButton>
         </div>
       )}
 

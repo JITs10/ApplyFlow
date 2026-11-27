@@ -24,7 +24,7 @@ export default async function SignInPage({
 
   try {
     const session = await auth()
-    if (session?.user && !authError) {
+    if (session?.user && !session.user.isGuest && !authError) {
       redirect('/dashboard')
     }
   } catch (error) {

@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { Sparkles, ArrowRight } from 'lucide-react'
+import { GitHubSignInButton } from '@/components/auth/AuthButtons'
 
 export function GuestBanner() {
   return (
@@ -10,13 +10,13 @@ export function GuestBanner() {
           <strong className="font-semibold text-foreground">Guest Demo Mode:</strong> You are exploring with sample data. Read-only preview.
         </span>
       </div>
-      <Link
-        href="/sign-in"
-        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-primary text-primary-foreground hover:opacity-90 text-[11px] font-semibold transition-all shadow-2xs cursor-pointer"
+      <GitHubSignInButton
+        size="sm"
+        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-primary text-primary-foreground hover:opacity-90 text-[11px] font-semibold transition-all shadow-2xs cursor-pointer h-7"
       >
         <span>Connect GitHub to track your real jobs</span>
         <ArrowRight className="w-3 h-3" />
-      </Link>
+      </GitHubSignInButton>
     </div>
   )
 }

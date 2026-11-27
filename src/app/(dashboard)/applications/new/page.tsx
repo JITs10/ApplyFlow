@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/auth'
 import { isGuestUser } from '@/lib/guest'
+import { GitHubSignInButton } from '@/components/auth/AuthButtons'
 import { db } from '@/lib/db'
 import { ApplicationForm } from '@/components/applications/ApplicationForm'
 import Link from 'next/link'
@@ -32,13 +33,13 @@ export default async function NewApplicationPage() {
               You are exploring in read-only guest mode. Test the form below, or connect your GitHub account to save your real applications permanently.
             </p>
           </div>
-          <Link
-            href="/sign-in"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold shrink-0 transition-colors shadow-xs"
+          <GitHubSignInButton
+            size="sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold shrink-0 transition-colors shadow-xs h-auto"
           >
             <span>Connect GitHub</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          </GitHubSignInButton>
         </div>
       )}
       <ApplicationForm resumes={resumes} isGuest={isGuest} />
