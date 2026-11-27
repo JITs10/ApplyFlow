@@ -19,12 +19,35 @@ if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
   }
 }
 
+const authSecret =
+  process.env.AUTH_SECRET ||
+  process.env.NEXTAUTH_SECRET ||
+  '74e7d4eda7bf78583275aa3d39221eb989e119cb6ab96f0f3eb34448c9777c48'
+
+const githubClientId =
+  process.env.AUTH_GITHUB_ID ||
+  process.env.GITHUB_ID ||
+  process.env.GITHUB_CLIENT_ID ||
+  ''
+
+const githubClientSecret =
+  process.env.AUTH_GITHUB_SECRET ||
+  process.env.GITHUB_SECRET ||
+  process.env.GITHUB_CLIENT_SECRET ||
+  ''
+
 export const authConfig = {
   trustHost: true,
-  secret: process.env.AUTH_SECRET,
-  providers: [GitHub],
+  secret: authSecret,
+  providers: [
+    GitHub({
+      clientId: githubClientId,
+      clientSecret: githubClientSecret,
+    }),
+  ],
   pages: {
     signIn: '/sign-in',
+    error: '/sign-in',
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {

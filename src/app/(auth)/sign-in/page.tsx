@@ -14,10 +14,17 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string }>
+}) {
+  const params = await searchParams
+  const authError = params?.error
+
   try {
     const session = await auth()
-    if (session?.user) {
+    if (session?.user && !authError) {
       redirect('/dashboard')
     }
   } catch (error) {
@@ -144,6 +151,17 @@ export default async function SignInPage() {
 
           {/* GitHub Sign-In Form */}
           <div className="space-y-4">
+            {authError && (
+              <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-600 dark:text-red-400 space-y-1">
+                <p className="font-semibold">Sign In Notice</p>
+                <p className="leading-relaxed">
+                  {authError === 'Configuration'
+                    ? 'Authentication service configuration error. Check that AUTH_SECRET, AUTH_GITHUB_ID, and AUTH_GITHUB_SECRET are set in your deployment.'
+                    : 'Sign-in could not be completed. You can try again or explore immediately using Guest Demo mode.'}
+                </p>
+              </div>
+            )}
+
             <GitHubSignInButton
               size="lg"
               className="w-full h-11 gap-2.5 text-sm font-semibold rounded-xl shadow-xs transition-all hover:translate-y-[-1px] cursor-pointer"

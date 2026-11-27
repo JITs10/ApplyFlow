@@ -33,7 +33,33 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(signInUrl)
     }
 
-    return NextResponse.next()
+    // Clean up stale or poisoned callback cookies from previous misconfigured runs
+    const callbackCookies = [
+      'authjs.callback-url',
+      '__Secure-authjs.callback-url',
+      'next-auth.callback-url',
+      '__Secure-next-auth.callback-url',
+    ]
+    let cookiesCleaned = false
+    for (const cookieName of callbackCookies) {
+      const val = request.cookies.get(cookieName)?.value
+      if (val && (val.includes('applyflow-six') || val.includes('localhost') || val.startsWith('http://'))) {
+        request.cookies.delete(cookieName)
+        cookiesCleaned = true
+      }
+    }
+
+    const response = NextResponse.next({
+      request: cookiesCleaned ? { headers: request.headers } : undefined,
+    })
+
+    if (cookiesCleaned) {
+      for (const cookieName of callbackCookies) {
+        response.cookies.delete(cookieName)
+      }
+    }
+
+    return response
   } catch (error) {
     // Fail open safely on edge so an unhandled proxy error never crashes the entire application
     console.error('Edge proxy invocation error:', error)

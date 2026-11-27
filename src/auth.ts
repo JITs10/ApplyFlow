@@ -26,7 +26,7 @@ if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   trustHost: true,
-  secret: process.env.AUTH_SECRET,
+  secret: authConfig.secret,
   adapter: PrismaAdapter(db),
   session: { strategy: 'jwt' },
   providers: [
