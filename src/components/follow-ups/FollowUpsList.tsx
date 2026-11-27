@@ -24,6 +24,7 @@ import {
   snoozeFollowUp,
   deleteFollowUp,
 } from '@/actions/follow-ups'
+import { showGuestSignInWarning, GUEST_RESTRICTION_ERROR } from '@/lib/guest-warning'
 import { calculateUrgency } from '@/lib/follow-ups/urgency'
 import {
   Check,
@@ -89,23 +90,35 @@ export function FollowUpsList({ followUps, applications }: FollowUpsListProps) {
 
   const handleComplete = async (id: string) => {
     setLoadingId(id)
-    await markFollowUpComplete(id)
+    const res = await markFollowUpComplete(id)
     setLoadingId(null)
+    if (res?.error === GUEST_RESTRICTION_ERROR) {
+      showGuestSignInWarning(res.message)
+      return
+    }
     router.refresh()
   }
 
   const handleSnooze = async (id: string, days: number) => {
     setLoadingId(id)
-    await snoozeFollowUp(id, days)
+    const res = await snoozeFollowUp(id, days)
     setLoadingId(null)
+    if (res?.error === GUEST_RESTRICTION_ERROR) {
+      showGuestSignInWarning(res.message)
+      return
+    }
     router.refresh()
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this follow-up?')) return
     setLoadingId(id)
-    await deleteFollowUp(id)
+    const res = await deleteFollowUp(id)
     setLoadingId(null)
+    if (res?.error === GUEST_RESTRICTION_ERROR) {
+      showGuestSignInWarning(res.message)
+      return
+    }
     router.refresh()
   }
 

@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
+import { showGuestSignInWarning, GUEST_RESTRICTION_ERROR } from '@/lib/guest-warning'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Calendar, FileText, Sparkles } from 'lucide-react'
 
@@ -32,12 +33,14 @@ interface ApplicationFormProps {
   initialData?: ApplicationInput & { id?: string }
   isEditing?: boolean
   resumes?: ResumeOption[]
+  isGuest?: boolean
 }
 
 export function ApplicationForm({
   initialData,
   isEditing,
   resumes = [],
+  isGuest,
 }: ApplicationFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -101,22 +104,53 @@ export function ApplicationForm({
   const currentResumeId = watch('resumeId')
 
   async function onSubmit(data: ApplicationInput) {
+    if (isGuest) {
+      showGuestSignInWarning(
+        isEditing
+          ? 'Sign in with GitHub to update applications and save your changes.'
+          : 'Sign in with GitHub to save real job applications to your tracker.'
+      )
+      return
+    }
+
     try {
       setIsSubmitting(true)
 
       if (isEditing && initialData?.id) {
-        await updateApplication(initialData.id, data)
+        const res = await updateApplication(initialData.id, data)
+        if (res && !res.success) {
+          if (res.error === GUEST_RESTRICTION_ERROR) {
+            showGuestSignInWarning(res.message)
+            return
+          }
+          toast.error(res.error || 'Failed to update application')
+          return
+        }
         toast.success('Application updated successfully')
         router.push(`/applications/${initialData.id}`)
       } else {
         const result = await createApplication(data)
+        if (result && !result.success) {
+          if (result.error === GUEST_RESTRICTION_ERROR) {
+            showGuestSignInWarning(result.message)
+            return
+          }
+          toast.error(result.error || 'Failed to create application')
+          return
+        }
         toast.success('Application created successfully')
-        router.push(`/applications/${result.id}`)
+        if (result.id) {
+          router.push(`/applications/${result.id}`)
+        }
       }
       router.refresh()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to save application'
-      toast.error(message)
+      if (message.includes('441') || message.includes('GUEST_MODE_RESTRICTED')) {
+        showGuestSignInWarning()
+      } else {
+        toast.error(message)
+      }
     } finally {
       setIsSubmitting(false)
     }

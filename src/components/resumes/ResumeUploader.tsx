@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { uploadResumeAction } from '@/actions/resumes'
 import { UploadCloud, FileText, Loader2, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { showGuestSignInWarning, GUEST_RESTRICTION_ERROR } from '@/lib/guest-warning'
 
 export function ResumeUploader() {
   const router = useRouter()
@@ -43,6 +44,10 @@ export function ResumeUploader() {
     setUploading(false)
 
     if (result.error) {
+      if (result.error === GUEST_RESTRICTION_ERROR) {
+        showGuestSignInWarning(result.message)
+        return
+      }
       setError(result.error)
       return
     }

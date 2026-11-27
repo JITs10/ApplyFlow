@@ -1,4 +1,5 @@
 import { requireUser } from '@/lib/auth'
+import { isGuestUser } from '@/lib/guest'
 import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { ApplicationForm } from '@/components/applications/ApplicationForm'
@@ -65,5 +66,7 @@ export default async function EditApplicationPage({ params }: Props) {
     assessmentDate: formatDateTimeLocal(assessmentEvent?.startAt),
   }
 
-  return <ApplicationForm initialData={initialData} isEditing resumes={resumes} />
+  const isGuest = isGuestUser(user.email)
+
+  return <ApplicationForm initialData={initialData} isEditing resumes={resumes} isGuest={isGuest} />
 }

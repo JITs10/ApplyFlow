@@ -1,13 +1,20 @@
 'use server'
 
-import { requireUser, assertNonGuest } from '@/lib/auth'
+import { requireUser } from '@/lib/auth'
+import { isGuestUser } from '@/lib/guest'
 import { db } from '@/lib/db'
 import { followUpSchema, type FollowUpInput } from '@/lib/validation/follow-up'
 import { revalidatePath } from 'next/cache'
 
 export async function createFollowUp(input: FollowUpInput) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to schedule follow-ups.',
+    }
+  }
 
   const parsed = followUpSchema.safeParse(input)
   if (!parsed.success) {
@@ -76,7 +83,13 @@ export async function createFollowUp(input: FollowUpInput) {
 
 export async function markFollowUpComplete(id: string) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to complete follow-ups.',
+    }
+  }
 
   const followUp = await db.followUp.findFirst({
     where: { id, userId: user.id },
@@ -129,7 +142,13 @@ export async function markFollowUpComplete(id: string) {
 
 export async function snoozeFollowUp(id: string, daysToAdd: number) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to snooze follow-ups.',
+    }
+  }
 
   const followUp = await db.followUp.findFirst({
     where: { id, userId: user.id },
@@ -184,7 +203,13 @@ export async function snoozeFollowUp(id: string, daysToAdd: number) {
 
 export async function deleteFollowUp(id: string) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to delete follow-ups.',
+    }
+  }
 
   const followUp = await db.followUp.findFirst({
     where: { id, userId: user.id },

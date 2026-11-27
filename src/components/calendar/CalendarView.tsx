@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dialog'
 import { ScheduleInterviewDialog } from '@/components/interviews/ScheduleInterviewDialog'
 import { deleteInterview } from '@/actions/interviews'
+import { showGuestSignInWarning, GUEST_RESTRICTION_ERROR } from '@/lib/guest-warning'
 import {
   ChevronLeft,
   ChevronRight,
@@ -92,8 +93,12 @@ export function CalendarView({ interviews, applications }: CalendarViewProps) {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to remove this interview from your schedule?')) return
     setIsDeleting(true)
-    await deleteInterview(id)
+    const res = await deleteInterview(id)
     setIsDeleting(false)
+    if (res?.error === GUEST_RESTRICTION_ERROR) {
+      showGuestSignInWarning(res.message)
+      return
+    }
     setSelectedInterview(null)
   }
 

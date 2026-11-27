@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { deleteResumeAction } from '@/actions/resumes'
 import { formatDate } from '@/lib/utils'
+import { showGuestSignInWarning, GUEST_RESTRICTION_ERROR } from '@/lib/guest-warning'
 import {
   FileText,
   Download,
@@ -64,8 +65,12 @@ export function ResumeList({ resumes }: ResumeListProps) {
     if (!confirm(warning)) return
 
     setDeletingId(id)
-    await deleteResumeAction(id)
+    const res = await deleteResumeAction(id)
     setDeletingId(null)
+    if (res?.error === GUEST_RESTRICTION_ERROR) {
+      showGuestSignInWarning(res.message)
+      return
+    }
     router.refresh()
   }
 

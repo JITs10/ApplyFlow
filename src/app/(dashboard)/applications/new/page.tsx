@@ -41,7 +41,7 @@ export default async function NewApplicationPage() {
           </Link>
         </div>
       )}
-      <ApplicationForm resumes={resumes} />
+      <ApplicationForm resumes={resumes} isGuest={isGuest} />
     </div>
   )
 }

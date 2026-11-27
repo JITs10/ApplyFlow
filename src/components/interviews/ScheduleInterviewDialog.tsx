@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select'
 import { createInterview } from '@/actions/interviews'
 import { Plus, Calendar, Video, MapPin, Loader2 } from 'lucide-react'
+import { showGuestSignInWarning, GUEST_RESTRICTION_ERROR } from '@/lib/guest-warning'
 
 interface ApplicationOption {
   id: string
@@ -103,6 +104,11 @@ export function ScheduleInterviewDialog({
     setLoading(false)
 
     if (result.error) {
+      if (result.error === GUEST_RESTRICTION_ERROR) {
+        showGuestSignInWarning(result.message)
+        setOpen(false)
+        return
+      }
       setError(result.error)
       return
     }

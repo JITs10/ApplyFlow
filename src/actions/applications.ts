@@ -1,6 +1,7 @@
 'use server'
 
-import { requireUser, assertNonGuest } from '@/lib/auth'
+import { requireUser } from '@/lib/auth'
+import { isGuestUser } from '@/lib/guest'
 import { db } from '@/lib/db'
 import { applicationSchema, type ApplicationInput } from '@/lib/validation/application'
 import { revalidatePath } from 'next/cache'
@@ -8,7 +9,13 @@ import type { ApplicationStatus } from '@prisma/client'
 
 export async function createApplication(input: ApplicationInput) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to save real job applications.',
+    }
+  }
   const validated = applicationSchema.parse(input)
 
   const application = await db.application.create({
@@ -61,7 +68,13 @@ export async function createApplication(input: ApplicationInput) {
 
 export async function updateApplication(id: string, input: ApplicationInput) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to update applications.',
+    }
+  }
   const validated = applicationSchema.parse(input)
 
   // Verify ownership before updating
@@ -140,7 +153,13 @@ export async function updateApplication(id: string, input: ApplicationInput) {
 
 export async function deleteApplication(id: string) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to delete applications.',
+    }
+  }
 
   const existing = await db.application.findFirst({
     where: { id, userId: user.id },
@@ -162,7 +181,13 @@ export async function deleteApplication(id: string) {
 
 export async function updateApplicationStatus(id: string, status: ApplicationStatus) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to move applications between stages.',
+    }
+  }
 
   const existing = await db.application.findFirst({
     where: { id, userId: user.id },

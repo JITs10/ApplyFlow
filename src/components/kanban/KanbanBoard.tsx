@@ -15,6 +15,7 @@ import {
 import { updateApplicationStatus } from '@/actions/applications'
 import { formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
+import { showGuestSignInWarning, GUEST_RESTRICTION_ERROR } from '@/lib/guest-warning'
 import {
   Plus,
   Table as TableIcon,
@@ -106,17 +107,35 @@ export function KanbanBoard({ initialApplications }: { initialApplications: Kanb
     )
 
     try {
-      await updateApplicationStatus(appId, newStatus)
+      const res = await updateApplicationStatus(appId, newStatus)
+      if (res && !res.success) {
+        // Rollback on guest restriction
+        setApplications((prev) =>
+          prev.map((app) => (app.id === appId ? { ...app, status: previousStatus } : app))
+        )
+        if (res.error === GUEST_RESTRICTION_ERROR) {
+          showGuestSignInWarning(res.message)
+          return
+        }
+        toast.error(res.error || 'Failed to update stage')
+        return
+      }
+
       toast.success(`Moved ${targetApp.company} to ${newStatus.toLowerCase()}`)
       startTransition(() => {
         router.refresh()
       })
-    } catch {
+    } catch (err: unknown) {
       // Rollback on error
       setApplications((prev) =>
         prev.map((app) => (app.id === appId ? { ...app, status: previousStatus } : app))
       )
-      toast.error('Failed to update stage')
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('441') || msg.includes('GUEST_MODE_RESTRICTED')) {
+        showGuestSignInWarning('Sign in with GitHub to move applications between hiring stages.')
+      } else {
+        toast.error('Failed to update stage')
+      }
     }
   }
 

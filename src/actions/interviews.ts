@@ -1,13 +1,20 @@
 'use server'
 
-import { requireUser, assertNonGuest } from '@/lib/auth'
+import { requireUser } from '@/lib/auth'
+import { isGuestUser } from '@/lib/guest'
 import { db } from '@/lib/db'
 import { interviewSchema, type InterviewInput } from '@/lib/validation/interview'
 import { revalidatePath } from 'next/cache'
 
 export async function createInterview(input: InterviewInput) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to schedule interviews.',
+    }
+  }
 
   const parsed = interviewSchema.safeParse(input)
   if (!parsed.success) {
@@ -61,7 +68,13 @@ export async function createInterview(input: InterviewInput) {
 
 export async function deleteInterview(id: string) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to delete interviews.',
+    }
+  }
 
   const interview = await db.interview.findFirst({
     where: { id, userId: user.id },

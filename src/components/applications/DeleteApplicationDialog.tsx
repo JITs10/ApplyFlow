@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Trash2, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { showGuestSignInWarning, GUEST_RESTRICTION_ERROR } from '@/lib/guest-warning'
 
 export function DeleteApplicationDialog({
   id,
@@ -32,14 +33,28 @@ export function DeleteApplicationDialog({
   async function handleDelete() {
     try {
       setIsDeleting(true)
-      await deleteApplication(id)
+      const res = await deleteApplication(id)
+      if (res && !res.success) {
+        if (res.error === GUEST_RESTRICTION_ERROR) {
+          showGuestSignInWarning(res.message)
+          setOpen(false)
+          return
+        }
+        toast.error(res.error || 'Failed to delete application')
+        return
+      }
       toast.success('Application deleted')
       setOpen(false)
       router.push('/applications')
       router.refresh()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to delete application'
-      toast.error(message)
+      if (message.includes('441') || message.includes('GUEST_MODE_RESTRICTED')) {
+        showGuestSignInWarning()
+        setOpen(false)
+      } else {
+        toast.error(message)
+      }
     } finally {
       setIsDeleting(false)
     }

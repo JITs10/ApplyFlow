@@ -1,13 +1,20 @@
 'use server'
 
-import { requireUser, assertNonGuest } from '@/lib/auth'
+import { requireUser } from '@/lib/auth'
+import { isGuestUser } from '@/lib/guest'
 import { db } from '@/lib/db'
 import { uploadResume, deleteResume, validateResumeFile } from '@/lib/storage/blob'
 import { revalidatePath } from 'next/cache'
 
 export async function uploadResumeAction(formData: FormData) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to upload resumes.',
+    }
+  }
 
   const file = formData.get('file') as File | null
   if (!file || !(file instanceof File) || file.size === 0) {
@@ -46,7 +53,13 @@ export async function uploadResumeAction(formData: FormData) {
 
 export async function deleteResumeAction(id: string) {
   const user = await requireUser()
-  await assertNonGuest(user)
+  if (isGuestUser(user.email)) {
+    return {
+      success: false,
+      error: 'GUEST_MODE_RESTRICTED',
+      message: 'You are currently exploring in Demo Guest Mode. Sign in with GitHub to delete resumes.',
+    }
+  }
 
   const resume = await db.resume.findFirst({
     where: { id, userId: user.id },
